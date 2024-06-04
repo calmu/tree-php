@@ -161,7 +161,7 @@ class Tree implements TreeInterface
 		$tree = [];
 		foreach ($this->parentList as &$value) {
 			if (count($value) === 1) {
-				$tree[] = $value[$this->childrenField];
+				$tree = array_merge($tree, $value[$this->childrenField]);
 			} else {
 				if (isset($this->leafField) && $isLeaf && $this->checkIsLeaf($value[$this->leafField])) {
 					unset($value[$this->childrenField]);
@@ -217,7 +217,8 @@ class Tree implements TreeInterface
 				} elseif (isset($this->parentList[$pid])) {// 顶级
 					array_multisort($sortArr, $sort, $this->parentList[$pid][$this->childrenField]);
 					if (count($this->parentList[$pid]) === 1) {
-						$tree[] = $this->parentList[$pid][$this->childrenField];
+						$tree = array_merge($tree, $this->parentList[$pid][$this->childrenField]);
+						// array_push($tree, ...$this->parentList[$pid][$this->childrenField]);
 					}
 				}
 			}
