@@ -109,9 +109,10 @@ class Tree implements TreeInterface
 	{
 		if (isset($this->list[$item[$this->idField]])) {
 			$this->list[$item[$this->idField]] += $item;
-		} else {
-			$this->list[$item[$this->idField]] = $item;
+			return $this;
 		}
+		$this->list[$item[$this->idField]] = $item;
+
 		$this->list[$item[$this->parentIdField]][$this->childrenField][] = &$this->list[$item[$this->idField]];
 		if (!isset($this->parentList[$item[$this->parentIdField]])) {
 			$this->parentList[$item[$this->parentIdField]] = &$this->list[$item[$this->parentIdField]];
@@ -127,10 +128,10 @@ class Tree implements TreeInterface
 	 *  描述
 	 * ++++++++++++++++
 	 *
-	 * @author huang_calvin@163.com
-	 * @dateTime 2023-6-1 10:15
 	 * @param int $sort
 	 * @return TreeInterface
+	 * @author huang_calvin@163.com
+	 * @dateTime 2023-6-1 10:15
 	 */
 	public function sort(int $sort = SORT_DESC): TreeInterface
 	{
@@ -176,11 +177,11 @@ class Tree implements TreeInterface
 	 *  描述
 	 * ++++++++++++++++
 	 *
-	 * @author huang_calvin@163.com
-	 * @dateTime 2023-6-2 11:36
 	 * @param string|int $leaf
 	 * @return bool
 	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2023-6-2 11:36
 	 */
 	protected function checkIsLeaf(string|int $leaf): bool
 	{
@@ -226,5 +227,134 @@ class Tree implements TreeInterface
 		} else {
 			return $this->buildTree($isLeaf);
 		}
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  获取list
+	 * ++++++++++++++++
+	 *
+	 * @param string $type
+	 * @return array
+	 * @throws \Exception
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-11 10:52
+	 */
+	public function getList(string $type = self::Tree_List_Parent): array
+	{
+		switch ($type) {
+			case self::Tree_List_Parent:
+				return unserialize(serialize($this->parentList));
+			case self::Tree_List_One:
+				return unserialize(serialize($this->list));
+		}
+		throw new \Exception('undefined list type :' . $type);
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  获取一项
+	 * ++++++++++++++++
+	 *
+	 * @param int|string $id
+	 * @param string $type
+	 * @return array
+	 * @throws \Exception
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-11 11:33
+	 */
+	public function getItem(int|string $id, string $type = self::Tree_Item_Id): array
+	{
+		switch ($type) {
+			case self::Tree_Item_Id:
+				if (isset($this->list[$id])) return unserialize(serialize($this->list[$id]));
+				return [];
+			case self::Tree_Item_Pid:
+				if (isset($this->parentList[$id])) return unserialize(serialize($this->parentList[$id]));
+				return [];
+		}
+		throw new \Exception('undefined list type :' . $type);
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  获取ids
+	 * ++++++++++++++++
+	 *
+	 * @param int|string $id
+	 * @return array
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-11 11:47
+	 */
+	public function getChildrenIds(int|string $id): array
+	{
+		if (!empty($this->parentList[$id][$this->childrenField])) {
+			return array_column($this->parentList[$id][$this->childrenField], $this->idField);
+		}
+		return [];
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  获取ids(multi)
+	 * ++++++++++++++++
+	 *
+	 * @param array|null $ids
+	 * @return array
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-11 11:47
+	 */
+	public function getMultiChildrenIds(?array $ids = null): array
+	{
+		$data = [];
+		if (empty($ids)) {
+			$data = array_keys($this->list);
+		} else {
+			foreach ($ids as $id) {
+				$data = array_merge($data, $this->getChildrenIds($id));
+			}
+		}
+		return $data;
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  判断是否为空
+	 * ++++++++++++++++
+	 *
+	 * @return bool
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-11 15:58
+	 */
+	public function isEmpty(): bool
+	{
+		return empty($this->list);
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  过滤已经填充的ID
+	 * ++++++++++++++++
+	 *
+	 * @param array $ids
+	 * @return array
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-11 17:26
+	 */
+	public function filterIds(array $ids): array
+	{
+		$list = [];
+		foreach ($ids as $id) {
+			if (!isset($this->list[$id]) || count($this->list[$id]) <= 1) {
+				$list[] = $id;
+			}
+		}
+		return $list;
 	}
 }
