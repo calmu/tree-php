@@ -312,7 +312,11 @@ class Tree implements TreeInterface
 	{
 		$data = [];
 		if (empty($ids)) {
-			$data = array_keys($this->list);
+			foreach ($this->list as $item) {
+				if (isset($item[$this->idField])) {
+					$data[] = $item[$this->idField];
+				}
+			}
 		} else {
 			foreach ($ids as $id) {
 				$data = array_merge($data, $this->getChildrenIds($id));
