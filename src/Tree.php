@@ -108,10 +108,12 @@ class Tree implements TreeInterface
 	public function buildItem(array $item): TreeInterface
 	{
 		if (isset($this->list[$item[$this->idField]])) {
+			$flag = count($this->list[$item[$this->idField]]) > 1;
 			$this->list[$item[$this->idField]] += $item;
-			return $this;
+			if ($flag) return $this;
+		} else {
+			$this->list[$item[$this->idField]] = $item;
 		}
-		$this->list[$item[$this->idField]] = $item;
 
 		$this->list[$item[$this->parentIdField]][$this->childrenField][] = &$this->list[$item[$this->idField]];
 		if (!isset($this->parentList[$item[$this->parentIdField]])) {
