@@ -33,6 +33,10 @@ interface TreeInterface
 
 	public function getItem(int|string $id, string $type = self::Tree_Item_Id): array;
 
+	public function checkParentRight(int|string $id): bool;
+
+	public function checkItemRight(int|string $id): bool;
+
 	public function getChildrenIds(int|string $id): array;
 
 	public function getMultiChildrenIds(?array $ids = null): array;

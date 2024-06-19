@@ -282,6 +282,38 @@ class Tree implements TreeInterface
 
 	/**
 	 * ++++++++++++++++
+	 *  查看item所属的的parent是否是完整组装过的
+	 * ++++++++++++++++
+	 *
+	 * @param int|string $id
+	 * @return bool
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-19 16:02
+	 */
+	public function checkParentRight(int|string $id): bool
+	{
+		return $this->checkItemRight($id) && $this->checkItemRight($this->list[$id][$this->parentIdField]);
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  查看item是否是完整组装过的
+	 * ++++++++++++++++
+	 *
+	 * @param int|string $id
+	 * @return bool
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-6-19 16:22
+	 */
+	public function checkItemRight(int|string $id): bool
+	{
+		return isset($this->list[$id][$this->parentIdField]);
+	}
+
+	/**
+	 * ++++++++++++++++
 	 *  获取ids
 	 * ++++++++++++++++
 	 *
