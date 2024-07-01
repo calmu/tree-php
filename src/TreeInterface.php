@@ -29,9 +29,11 @@ interface TreeInterface
 
 	public function buildTreeWithSort(bool $isLeaf = false, int $sort = SORT_DESC): array;
 
-	public function getList(string $type = self::Tree_List_Parent): array;
+	public function getList(string $type = self::Tree_List_Parent, bool $disconnect = true): array;
 
-	public function getItem(int|string $id, string $type = self::Tree_Item_Id): array;
+	public function getItem(int|string $id, string $type = self::Tree_Item_Id, bool $disconnect = true): ?array;
+
+	public function getEmptyItem(): ?array;
 
 	public function checkParentRight(int|string $id): bool;
 

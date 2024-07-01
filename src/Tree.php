@@ -237,19 +237,19 @@ class Tree implements TreeInterface
 	 * ++++++++++++++++
 	 *
 	 * @param string $type
+	 * @param bool $disconnect
 	 * @return array
 	 * @throws \Exception
-	 *
 	 * @author huang_calvin@163.com
 	 * @dateTime 2024-6-11 10:52
 	 */
-	public function getList(string $type = self::Tree_List_Parent): array
+	public function getList(string $type = self::Tree_List_Parent, bool $disconnect = true): array
 	{
 		switch ($type) {
 			case self::Tree_List_Parent:
-				return unserialize(serialize($this->parentList));
+				return $disconnect ? unserialize(serialize($this->parentList)) : $this->parentList;
 			case self::Tree_List_One:
-				return unserialize(serialize($this->list));
+				return $disconnect ? unserialize(serialize($this->list)) : $this->list;
 		}
 		throw new \Exception('undefined list type :' . $type);
 	}
@@ -261,23 +261,46 @@ class Tree implements TreeInterface
 	 *
 	 * @param int|string $id
 	 * @param string $type
-	 * @return array
+	 * @param bool $disconnect
+	 * @return array|null
 	 * @throws \Exception
-	 *
 	 * @author huang_calvin@163.com
 	 * @dateTime 2024-6-11 11:33
 	 */
-	public function getItem(int|string $id, string $type = self::Tree_Item_Id): array
+	public function getItem(int|string $id, string $type = self::Tree_Item_Id, bool $disconnect = true): ?array
 	{
 		switch ($type) {
 			case self::Tree_Item_Id:
-				if (isset($this->list[$id])) return unserialize(serialize($this->list[$id]));
-				return [];
+				if (isset($this->list[$id])) return $disconnect ? unserialize(serialize($this->list[$id])) : $this->list[$id];
+				return null;
 			case self::Tree_Item_Pid:
-				if (isset($this->parentList[$id])) return unserialize(serialize($this->parentList[$id]));
-				return [];
+				if (isset($this->parentList[$id])) return $disconnect ? unserialize(serialize($this->parentList[$id])) : $this->parentList[$id];
+				return null;
 		}
 		throw new \Exception('undefined list type :' . $type);
+	}
+
+	/**
+	 * ++++++++++++++++
+	 *  复制一个空的格式Item
+	 * ++++++++++++++++
+	 *
+	 * @return array|null
+	 *
+	 * @author huang_calvin@163.com
+	 * @dateTime 2024-7-1 17:47
+	 */
+	public function getEmptyItem(): ?array
+	{
+		$data = [];
+		foreach ($this->list as $item) {
+			if (count($item) <= 0) continue;
+			foreach ($item as $key => $value) {
+				if ($key == $this->childrenField) continue;
+				$data[$key] = $value;
+			}
+		}
+		return $data ?: null;
 	}
 
 	/**
